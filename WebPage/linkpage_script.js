@@ -31,6 +31,7 @@ var link_key = {
     "film_actor": { 'film_id': ['film'], 'actor_id': ['actor'] },
 }
 
+
 // initialize firebase
 // load page
 function init() {
@@ -69,22 +70,11 @@ async function getLinkResult() {
     var tables = getURLParameter("linkto");
     var clicked_col = getURLParameter("clicked_col");
     var clicked_val = getURLParameter("clicked_val");
-    console.log("in db", db)
-    console.log("clicked on column", clicked_col)
-    console.log("clicked_val", clicked_val)
-    console.log("link to tables", tables)
 
     for (table_index in tables) {
         table = tables[table_index]
         createTable(table);
 
-        // translate column name Code to CountryCode for world database
-        /*
-        if (table == "countrylanguage" | table == "city"){
-            var clicked_col = "CountryCode";
-        } else if (table == "country"){
-            var clicked_col = "Code";
-        }*/
         var s = database.ref('/' + db + '/link/' + table + '/' + clicked_col + '/' + clicked_val); // s is a list of dictionary
         var x = s.once("value").then(function(node) {
             jquery_createRow(db, table, node.val());
@@ -95,35 +85,11 @@ async function getLinkResult() {
     $(".table_container").show();
 }
 
-/*
-// retrieve data from firebase according to parameter in url
-async function retrieveData(db, table, clicked_column, clicked_value) {
-    $(".table_container").html("");
-    $(".table_container").hide();
-    createTable(table);
-
-    // translate column name Code to CountryCode for world database
-    if (table == "countrylanguage" | table == "city"){
-        var clicked_column = "CountryCode";
-    } else if (table == "country"){
-        var clicked_column = "Code";
-    }
-    var s = database.ref('/' + db + '/link/' + table + '/' + clicked_column + '/' + clicked_value); // s is a list of dictionary
-    var x = s.once("value").then(function(node) {
-        jquery_createRow(db, table, node.val());
-    })
-    await x;
-    $(".table_container").show();
-}*/
-
 
 function createTable(table) {
     // create a table with table name
     var t = '<table id=' + table + ' border="1"><caption style="text-align:left">' + table.toString().toUpperCase() + '</caption></table>';
     $(".table_container").append(t);
-    // back to top of page
-    //var backToTop = '<div><a href="#searchpanel"> Back to Top </a></div>'
-    //$(".table_container").append(backToTop);
 }
 
 
@@ -159,8 +125,6 @@ function jquery_createRow(db, table, list) {
                 if (col_name in link_key[table]) {
                     var tables = link_key[table][col_name].join("+")
                     var newpage = 'linkpage.html?db=' + db + '&linkto=' + tables + '&clicked_col=' + col_name + '&clicked_val=' + cell_value
-                    //var newpage = 'linkpage.html'
-                    //tr += '<td>' + '<a href="' + newpage + '" target="_blank">' + cell_value  + '</a></td>';
                     tr += '<td>' + '<a href="' + newpage + '">' + cell_value  + '</a></td>';
                 } else {
                     tr += '<td>' + cell_value + '</td>';

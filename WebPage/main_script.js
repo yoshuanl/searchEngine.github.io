@@ -43,15 +43,6 @@ function init() {
 
 $(init);
 
-// allow user to press enter to fire search
-$(document).ready(function() {
-    $('#kw').keypress(function(e) {
-        if (e.keyCode == 13)
-            $('#searchbtn').click();
-    });
-    $(this).scrollTop(0);
-});
-
 
 async function input() {
     count = {};
@@ -60,13 +51,13 @@ async function input() {
 
     var x = sortKeywords()
     await x
-    console.log("read", communication["sort"], "inverted index info"); /************/
     document.getElementById("index_read").innerHTML = communication["sort"];
     document.getElementById("data_fetched").innerHTML = communication["retrieve"];
     var x = generateTable(lengthofsearch = 5, tables = null)
     await x
     $(".table_container").show();
 };
+
 
 async function Expand(table) {
     console.log("expand", table)
@@ -75,23 +66,16 @@ async function Expand(table) {
     $('#' + table.toString() + ' tr:gt(5)').show()
 }
 
+
 function hideAll(table) {
     $('#' + table.toString() + ' tr:gt(5)').hide()
 }
 
-function sum(a, b) {
-    console.log(a + b)
-}
 
 async function sortKeywords() {
-    console.log("2")
+    //console.log("2")
     $(".table_container").html("");
     $(".table_container").hide();
-    // $("table").html("");
-    // $("header").show();
-    // $("#city").hide()
-    // $("#country").hide();
-    //$("#countrylanguage").hide();
 
     var db = $('#db option:selected').text()
     console.log(db);
@@ -106,12 +90,9 @@ async function sortKeywords() {
     keywords = keywords.replace(/(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|:|\"|'|<|,|\.|>|\?|\/|\\|\||-|_|\+|=)/g, '')
         .split(/(\s+)/).filter(e => e.trim().length > 0);
     console.log(keywords);
-    //return
-
 
     // use inverted index to count occurance of keywords in each table
     for (i = 0; i < keywords.length; i++) {
-        //var s = database.ref('/project/' + db + '/index/' + keywords[i]);
         var s = database.ref('/' + db + '/index/' + keywords[i]);
         var xx =
             s.once("value").then(function(node) {
@@ -150,6 +131,7 @@ async function sortKeywords() {
 
 }
 
+
 async function generateTable(lengthofsearch = null, tables = null) {
     // console.log("table", tables)
     // console.log("3")
@@ -161,7 +143,6 @@ async function generateTable(lengthofsearch = null, tables = null) {
         if (tables != null & table != tables) {
             continue
         } else if (tables != null) {
-            //$('#' + tables.toString() + ' tr:gt(' + start + ')').html("")
             $('#' + tables.toString() + ' tr:gt(' + start + ')').hide()
         }
 
@@ -178,131 +159,27 @@ async function generateTable(lengthofsearch = null, tables = null) {
             })
         }
         await x;
-        console.log("retrieved", communication["retrieve"], "rows"); /************/
         document.getElementById("data_fetched").innerHTML = communication["retrieve"];
     };
-    //$('#' + table.toString()).show()
-
 }
-
-// async function input() {
-//     $(".table_container").html("");
-//     $(".table_container").hide();
-//     // $("table").html("");
-//     $("header").show();
-//     // $("#city").hide()
-//     // $("#country").hide();
-//     //$("#countrylanguage").hide();
-
-
-//     // $("#city").html("");
-//     // $("#country").html("");
-//     // $("#countrylanguage").html("");
-
-//     var db = $('#db option:selected').text()
-//         //console.log(db);
-
-//     // normalized keywords
-//     var keywords = $("#kw").val().toLowerCase()
-//     keywords = keywords.replace(/(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|:|\"|'|<|,|\.|>|\?|\/|\\|\||-|_|\+|=)/g, '')
-//         .split(/(\s+)/).filter(e => e.trim().length > 0);
-//     console.log(keywords);
-//     //return
-
-//     var count = {};
-//     // use inverted index to count occurance of keywords in each table
-//     for (i = 0; i < keywords.length; i++) {
-//         var s = database.ref('/project/' + db + '/index/' + keywords[i]);
-//         var xx =
-//             s.once("value").then(function(node) {
-//                 node.forEach(function(child) {
-
-//                     var table = child.child("TABLE").val()
-//                     var key = child.child("PK").val()
-//                     if (!(table in count)) {
-//                         count[table] = {};
-//                         createTable(table);
-//                     };
-
-//                     if (!(key in count[table])) {
-//                         count[table][key.toString()] = 1;
-//                     } else {
-//                         count[table][key.toString()] += 1;
-//                     };
-//                 })
-//             });
-//         await xx;
-//     }
-//     console.log("count", count)
-//     console.log("count len = 0 ?", Object.keys(count).length == 0)
-//     if (Object.keys(count).length == 0) {
-//         var message1 = '<div>Sorry, no "' + keywords + '" exists in ' + db + ' database.</div>';
-//         var message2 = '<div>Please try another keyword or switch to other database.</div>';
-//         $(".table_container").append(message1);
-//         $(".table_container").append(message2);
-//     }
-
-//     // sort count result
-//     sort = {}
-//     for (var i in count) {
-//         console.log("i in count", i)
-//         keysSorted = Object.keys(count[i]).sort(function(a, b) { return -count[i][a] + count[i][b] });
-//         sort[i] = keysSorted;
-//     }
-//     console.log("sort", sort)
-//     console.log("count", count)
-
-
-//     for (var table in count) {
-
-//         var rowCount = 0
-//         for (var id in sort[table].slice(0, 10)) {
-//             var keywords = sort[table][id];
-//             // retreive data row from firebase
-//             var s = database.ref('/project/' + db + "/" + table + '/' + keywords);
-
-
-//             var x = s.once("value").then(function(node) {
-//                 jquery_createRow(db, table, node.val());
-//             })
-
-
-//             rowCount += 1
-//         }
-//         await x;
-//         console.log("3", rowCount)
-
-//     };
-//     $(".table_container").show();
-//     //$("#city:gt(5)").show();
-
-// };
-
 
 
 function createTable(table) {
-    // create a table with table name
-    // var collapse = '<button class="collapse" > Collapse </button>'
-    // collapse = $(collapse).click(function() { hideAll(table) })
-
+    // create a table with table name and expand/collapse buttons
     var t = '<table id=' + table + ' border="1" align="center"><caption style="text-align:left">' + table.toString().toUpperCase() + '  <span class="right" style="text-align:right"><button class="collapse"> Collapse </button></span></caption></table>';
     collapse = $(t).click(function() { hideAll(table) })
     $('.table_container').append(collapse);
 
-    //var expand = '<div onclick="Expand(tables = this.id)" id = table> Expand </div>'
-    // var expand = '<div > Expand </div>'
     var expand = '<span class="center"><button class="expand" > Expand </button></span>' //<hr />'
     var collapse = '<span class="center"><button class="collapse" > Collapse </button></span>'
 
     expand = $(expand).click(function() { Expand(table) })
     collapse = $(collapse).click(function() { hideAll(table) })
 
-    //collapse = $(collapse).click(function() { hideAll(table) })
     $(".table_container").append(expand);
     $(".table_container").append(collapse);
-
-
 }
+
 
 function jquery_createRow(db, table, list) {
     if (list == null) {
@@ -336,7 +213,6 @@ function jquery_createRow(db, table, list) {
             if (col_name in link_key[table]) {
                 var tables = link_key[table][col_name].join("+")
                 var newpage = 'linkpage.html?db=' + db + '&linkto=' + tables + '&clicked_col=' + col_name + '&clicked_val=' + cell_value
-                    //var newpage = 'linkpage.html'
                 tr += '<td>' + '<a href="' + newpage + '" target="_blank">' + cell_value + '</a></td>';
             } else {
                 tr += '<td>' + cell_value + '</td>';
@@ -349,6 +225,18 @@ function jquery_createRow(db, table, list) {
     }
 
 }
+
+
+/* Other additional functions */
+
+// Allow user to press enter to fire search
+$(document).ready(function() {
+    $('#kw').keypress(function(e) {
+        if (e.keyCode == 13)
+            $('#searchbtn').click();
+    });
+    $(this).scrollTop(0);
+});
 
 
 // CSS
