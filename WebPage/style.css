@@ -31,16 +31,23 @@ span {
     padding: 3px
 }
 
+
 /* The search panel */
+
 #panel {
-    width: 100%; /* Full width */
+    width: 100%;
+    /* Full width */
     overflow: hidden;
     /*background-color: #FFFBEA;*/
     background-color: white;
-    padding: 40px 5px; /* Large padding which will shrink on scroll (using JS) */
-    transition: 0.4s; /* Adds a transition effect when the padding is decreased */
-    position: fixed; /* Set the search bar to fixed position */
-    top: 0; /* Position the search bar at the top of the page */
+    padding: 40px 5px;
+    /* Large padding which will shrink on scroll (using JS) */
+    transition: 0.4s;
+    /* Adds a transition effect when the padding is decreased */
+    position: fixed;
+    /* Set the search bar to fixed position */
+    top: 0;
+    /* Position the search bar at the top of the page */
 }
 
 #panel #our_title {
@@ -74,7 +81,8 @@ span {
     font-size: 12px;
 }
 
-#index_read, #data_fetched {
+#index_read,
+#data_fetched {
     font-weight: bold;
 }
 
@@ -88,6 +96,8 @@ span {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;*/
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
 }
+
+
 /* 
 table,
 th,
@@ -110,7 +120,8 @@ table {
     margin-left: auto;*/
 }
 
-td, th {
+td,
+th {
     font-size: 16px;
     font-weight: 100;
     border: 1px solid #ddd;
@@ -124,16 +135,31 @@ th {
     padding-top: 12px;
     background-color: #E9967A;
     color: #F5EEEE;
-  }
+}
 
-tr:nth-child(even){background-color: #F5EEEE;}
-tr:hover {background-color: #FFFAFA;}
+tr:nth-child(even) {
+    background-color: #F5EEEE;
+}
 
-a:link { color: #8B4513; }
-a:visited { color: #b98f71; }
-a:hover { color: #E9967A; }
+tr:hover {
+    background-color: #FFFAFA;
+}
+
+a:link {
+    color: #8B4513;
+}
+
+a:visited {
+    color: #b98f71;
+}
+
+a:hover {
+    color: #E9967A;
+}
+
 
 /**/
+
 caption {
     /*font-weight: bold;*/
     font-size: 22px;
@@ -148,12 +174,14 @@ caption {
 }
 
 .right {
+    float: right;
+}
+
+.center {
     float: center;
 }
 
-.left {
-    float: left;
-}
+
 /*
 footer p {
     font-size: 10px;
@@ -171,8 +199,8 @@ footer {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }*/
 
+
 /* Customize selection */
+
+
 /* The container must be positioned relative: */
-
-
-
