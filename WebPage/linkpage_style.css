@@ -1,0 +1,98 @@
+body {
+    background-color: white;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    margin: 0;
+}
+
+div {
+    text-align: center;
+    font-size: 16px;
+    color: #8B4513;
+}
+
+h1 {
+    color: #8B4513;
+    font-size: 22px;
+    font-weight: bold;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+
+p {
+    color: #8B4513;
+    font-size: 12px;
+    text-align: center;
+}
+
+/* The search bar */
+#search_bar {
+    width: 100%; /* Full width */
+    overflow: hidden;
+    background-color: white;
+    /*background-color: #FFFBEA;*/
+    padding: 5px 5px 10px;
+    position: fixed; /* Set the search bar to fixed position */
+    top: 0; /* Position the search bar at the top of the page */
+}
+
+#index_read, #data_fetched {
+    font-weight: bold;
+}
+
+.table_container {
+    width: auto;
+    margin-top: 125px;
+    height: 1024px;
+    text-align: center;
+    color: #696969;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 25px;
+}
+
+td, th {
+    font-size: 16px;
+    font-weight: 100;
+    border: 1px solid #ddd;
+    padding: 6px;
+    text-align: left;
+}
+
+tr:nth-child(even){background-color: #f5eeee;}
+tr:hover {background-color: #FFFAFA;}
+
+th {
+    padding-top: 12px;
+    text-align: left;
+    background-color: #E9967A;
+    color: #f5eeee;
+  }
+
+a:link { color: #b98f71; }
+a:visited { color: #8B4513; }
+a:hover { color: #E9967A; }
+
+/**/
+caption {
+    /*font-weight: bold;*/
+    font-size: 22px;
+    color: #8B4513;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.expand,
+.collapse {
+    text-align: right;
+}
+
+.right {
+    float: center;
+}
+
+.left {
+    float: left;
+}
