@@ -72,10 +72,26 @@ p {
     font-weight: bold;
 }
 
+#linkpage_banner {
+    width: 100%;
+    padding: 5px 5px 10px;
+    background-color: white;
+    position: fixed; 
+    top: 0;
+}
+
+
 /* The outcome area, table */
 
 .table_container {
     margin-top: 250px;
+    width: auto;
+    height: 1024px;
+    color: #696969;
+}
+
+.linkpage_table_container {
+    margin-top: 125px;
     width: auto;
     height: 1024px;
     color: #696969;

@@ -64,8 +64,8 @@ function getURLParameter(sParam) {
 // main function
 async function getLinkResult() {
     communication = 0
-    $(".table_container").html("");
-    $(".table_container").hide();
+    $(".linkpage_table_container").html("");
+    $(".linkpage_table_container").hide();
     var db = getURLParameter("db");
     var tables = getURLParameter("linkto");
     var clicked_col = getURLParameter("clicked_col");
@@ -82,14 +82,14 @@ async function getLinkResult() {
         await x;
         document.getElementById("data_fetched").innerHTML = communication;
     }
-    $(".table_container").show();
+    $(".linkpage_table_container").show();
 }
 
 
 function createTable(table) {
     // create a table with table name
     var t = '<table id=' + table + ' border="1"><caption style="text-align:left">' + table.toString().toUpperCase() + '</caption></table>';
-    $(".table_container").append(t);
+    $(".linkpage_table_container").append(t);
 }
 
 
