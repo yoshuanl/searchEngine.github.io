@@ -2,35 +2,35 @@ var database;
 var db;
 // column name 
 var col = {
-        "city": ['ID', 'Name', 'CountryCode', 'District', 'Population'],
-        "country": ['CountryCode', 'Name', 'Continent', 'Region', 'SurfaceArea', 'IndepYear', 'Population', 'LifeExpectancy', 'GNP', 'GNPOld', 'LocalName', 'GovernmentForm', 'HeadOfState', 'Capital', 'Code2'],
-        "countrylanguage": ['CountryCode', 'Language', 'IsOfficial', 'Percentage'],
+    "city": ['ID', 'Name', 'CountryCode', 'District', 'Population'],
+    "country": ['CountryCode', 'Name', 'Continent', 'Region', 'SurfaceArea', 'IndepYear', 'Population', 'LifeExpectancy', 'GNP', 'GNPOld', 'LocalName', 'GovernmentForm', 'HeadOfState', 'Capital', 'Code2'],
+    "countrylanguage": ['CountryCode', 'Language', 'IsOfficial', 'Percentage'],
 
-        "employees": ['emp_no', 'birth_date', 'first_name', 'last_name', 'gender', 'hire_date'],
-        "titles": ['emp_no', 'title', 'from_date', 'to_date'],
-        "departments": ['dept_no', 'dept_name'],
-        "dept_emp": ['emp_no', 'dept_no', 'from_date', 'to_date'],
+    "employees": ['emp_no', 'birth_date', 'first_name', 'last_name', 'gender', 'hire_date'],
+    "titles": ['emp_no', 'title', 'from_date', 'to_date'],
+    "departments": ['dept_no', 'dept_name'],
+    "dept_emp": ['emp_no', 'dept_no', 'from_date', 'to_date'],
 
-        "film": ['film_id', 'title', 'description', 'length'],
-        "actor": ['actor_id', 'first_name', 'last_name'],
-        "film_actor": ['film_id', 'actor_id']
-    }
+    "film": ['film_id', 'title', 'description', 'length'],
+    "actor": ['actor_id', 'first_name', 'last_name'],
+    "film_actor": ['film_id', 'actor_id']
+}
 
 // columns that allows user to link to other tables
 var link_key = {
-        "city": { 'CountryCode': ['country'] },
-        "country": { 'CountryCode': ['city', 'countrylanguage'] },
-        "countrylanguage": { 'CountryCode': ['country'] },
+    "city": { 'CountryCode': ['country'] },
+    "country": { 'CountryCode': ['city', 'countrylanguage'] },
+    "countrylanguage": { 'CountryCode': ['country'] },
 
-        "employees": { 'emp_no': ['titles', 'dept_emp'] },
-        "titles": { 'emp_no': ['employees'] },
-        "departments": { 'dept_no': ['dept_emp'] },
-        "dept_emp": { 'emp_no': ['employees'], 'dept_no': ['departments'] },
+    "employees": { 'emp_no': ['titles', 'dept_emp'] },
+    "titles": { 'emp_no': ['employees'] },
+    "departments": { 'dept_no': ['dept_emp'] },
+    "dept_emp": { 'emp_no': ['employees'], 'dept_no': ['departments'] },
 
-        "film": { 'film_id': ['film_actor'] },
-        "actor": { 'actor_id': ['film_actor'] },
-        "film_actor": { 'film_id': ['film'], 'actor_id': ['actor'] },
-    }
+    "film": { 'film_id': ['film_actor'] },
+    "actor": { 'actor_id': ['film_actor'] },
+    "film_actor": { 'film_id': ['film'], 'actor_id': ['actor'] },
+}
 
 
 function init() {
@@ -56,8 +56,8 @@ $(document).ready(function() {
 async function input() {
     count = {};
     sort = {};
-    communication = {"sort": 0, "retrieve": 0}; /* Project requirement: Communication overhead*/
-    
+    communication = { "sort": 0, "retrieve": 0 }; /* Project requirement: Communication overhead*/
+
     var x = sortKeywords()
     await x
     console.log("read", communication["sort"], "inverted index info"); /************/
@@ -95,7 +95,7 @@ async function sortKeywords() {
 
     var db = $('#db option:selected').text()
     console.log(db);
-    if (db == "Select DB:"){
+    if (db == "Select DB:") {
         var message1 = '<div>Please Select a Database.</div>';
         $(".table_container").append(message1);
         return
@@ -108,7 +108,7 @@ async function sortKeywords() {
     console.log(keywords);
     //return
 
-    
+
     // use inverted index to count occurance of keywords in each table
     for (i = 0; i < keywords.length; i++) {
         //var s = database.ref('/project/' + db + '/index/' + keywords[i]);
@@ -134,7 +134,7 @@ async function sortKeywords() {
             });
         await xx;
     }
-    
+
     if (Object.keys(count).length == 0) {
         var message1 = '<div>Sorry, no "' + keywords + '" exists in ' + db + ' database.</div>';
         $(".table_container").append(message1);
@@ -285,20 +285,22 @@ function createTable(table) {
     // var collapse = '<button class="collapse" > Collapse </button>'
     // collapse = $(collapse).click(function() { hideAll(table) })
 
-    var t = '<table id=' + table + ' border="1" align="center"><caption style="text-align:left">' + table.toString().toUpperCase() + '  <span style="text-align:right"><button class="collapse"> Collapse </button></span></caption></table>';
-    $('.table_container').append(t);
-    
+    var t = '<table id=' + table + ' border="1" align="center"><caption style="text-align:left">' + table.toString().toUpperCase() + '  <span class="right" style="text-align:right"><button class="collapse"> Collapse </button></span></caption></table>';
+    collapse = $(t).click(function() { hideAll(table) })
+    $('.table_container').append(collapse);
+
     //var expand = '<div onclick="Expand(tables = this.id)" id = table> Expand </div>'
     // var expand = '<div > Expand </div>'
-    var expand = '<span class="right"><button class="expand" > Expand </button></span><br />' //<hr />'
-    var collapse = '<span class="right"><button class="collapse" > Collapse </button></span>'
+    var expand = '<span class="center"><button class="expand" > Expand </button></span>' //<hr />'
+    var collapse = '<span class="center"><button class="collapse" > Collapse </button></span>'
 
     expand = $(expand).click(function() { Expand(table) })
     collapse = $(collapse).click(function() { hideAll(table) })
 
     //collapse = $(collapse).click(function() { hideAll(table) })
-    $(".table_container").append(collapse);
     $(".table_container").append(expand);
+    $(".table_container").append(collapse);
+
 
 }
 
@@ -315,26 +317,26 @@ function jquery_createRow(db, table, list) {
                 header += '<th>' + col[table][i] + '</th>';
             }
             header += '</tr>'
-            // append it to html page
+                // append it to html page
             $('#' + table.toString()).append(header);
         }
         // build data rows for sorted search output
         var tr = '<tr>'
-        // var rowCount = $('#' + table.toString() + ' tr').length;
-        // console.log("4", rowCount);
+            // var rowCount = $('#' + table.toString() + ' tr').length;
+            // console.log("4", rowCount);
         for (var col_index in col[table]) {
 
             var cell_value = list[col[table][col_index]]
-            // handle NULL case
-            if (cell_value == null | cell_value == "" | cell_value == "–"){
+                // handle NULL case
+            if (cell_value == null | cell_value == "" | cell_value == "–") {
                 cell_value = "---"
             }
             col_name = col[table][col_index]
-            // if that column has foreign key relation, build link for it
+                // if that column has foreign key relation, build link for it
             if (col_name in link_key[table]) {
                 var tables = link_key[table][col_name].join("+")
                 var newpage = 'linkpage.html?db=' + db + '&linkto=' + tables + '&clicked_col=' + col_name + '&clicked_val=' + cell_value
-                //var newpage = 'linkpage.html'
+                    //var newpage = 'linkpage.html'
                 tr += '<td>' + '<a href="' + newpage + '" target="_blank">' + cell_value + '</a></td>';
             } else {
                 tr += '<td>' + cell_value + '</td>';
@@ -351,14 +353,14 @@ function jquery_createRow(db, table, list) {
 
 // CSS
 // When the user scrolls down 25px from the top of the document, resize the panel's padding and the title's font size
-window.onscroll = function() {scrollFunction()};
+window.onscroll = function() { scrollFunction() };
 
 function scrollFunction() {
-  if (document.body.scrollTop > 25 || document.documentElement.scrollTop > 25) {
-    document.getElementById("panel").style.padding = "5px 5px 10px"; /* Top:5px, Right, Left: 5px, Bottom: 10px */
-    document.getElementById("our_title").style.fontSize = "22px";
-  } else {
-    document.getElementById("panel").style.padding = "40px 5px";
-    document.getElementById("our_title").style.fontSize = "35px";
-  }
+    if (document.body.scrollTop > 25 || document.documentElement.scrollTop > 25) {
+        document.getElementById("panel").style.padding = "5px 5px 10px"; /* Top:5px, Right, Left: 5px, Bottom: 10px */
+        document.getElementById("our_title").style.fontSize = "22px";
+    } else {
+        document.getElementById("panel").style.padding = "40px 5px";
+        document.getElementById("our_title").style.fontSize = "35px";
+    }
 }
