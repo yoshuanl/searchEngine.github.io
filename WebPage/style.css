@@ -76,7 +76,7 @@ p {
     width: 100%;
     padding: 5px 5px 10px;
     background-color: white;
-    position: fixed; 
+    position: fixed;
     top: 0;
 }
 
@@ -100,7 +100,7 @@ p {
 table {
     margin: 25px;
     border-collapse: collapse;
-    width: 100%;
+    width: 95%;
 }
 
 td,

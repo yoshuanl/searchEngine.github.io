@@ -39,6 +39,7 @@ function init() {
         projectId: "sql-searchdb"
     });
     database = firebase.database();
+
 }
 
 $(init);
@@ -51,19 +52,21 @@ async function input() {
 
     var x = sortKeywords()
     await x
-    document.getElementById("index_read").innerHTML = communication["sort"];
-    document.getElementById("data_fetched").innerHTML = communication["retrieve"];
+    $("#index_read").text(communication["sort"]);
+
     var x = generateTable(lengthofsearch = 5, tables = null)
     await x
     $(".table_container").show();
+    $("#data_fetched").text(communication["retrieve"]);
 };
 
 
 async function Expand(table) {
-    console.log("expand", table)
+    // console.log("expand", table)
     var x = generateTable(lengthofsearch = null, tables = table)
     await x
     $('#' + table.toString() + ' tr:gt(5)').show()
+    $("#data_fetched").text(communication["retrieve"]);
 }
 
 
@@ -102,7 +105,6 @@ async function sortKeywords() {
                     var key = child.child("PK").val()
                     if (!(table in count)) {
                         count[table] = {};
-                        createTable(table);
                     };
 
                     if (!(key in count[table])) {
@@ -124,9 +126,10 @@ async function sortKeywords() {
 
     // sort count result
     for (var i in count) {
-        console.log("i in count", i)
+        // console.log("i in count", i)
         keysSorted = Object.keys(count[i]).sort(function(a, b) { return -count[i][a] + count[i][b] });
         sort[i] = keysSorted;
+        createTable(i, keysSorted.length);
     }
 
 }
@@ -159,14 +162,21 @@ async function generateTable(lengthofsearch = null, tables = null) {
             })
         }
         await x;
-        document.getElementById("data_fetched").innerHTML = communication["retrieve"];
+        // document.getElementById("data_fetched").innerHTML = communication["retrieve"];
     };
 }
 
 
-function createTable(table) {
+function createTable(table, lengthoftable) {
     // create a table with table name and expand/collapse buttons
-    var t = '<table id=' + table + ' border="1" align="center"><caption style="text-align:left">' + table.toString().toUpperCase() + '  <span class="right" style="text-align:right"><button class="collapse"> Collapse </button></span></caption></table>';
+    var t = '<table id=' + table + ' border="1" align="center"><caption style="text-align:left">' + table.toString().toUpperCase();
+
+    if (lengthoftable <= 5) {
+        t += '</caption></table>'
+        $('.table_container').append(t);
+        return
+    }
+    t += '  <span class="right" style="text-align:right"><button class="collapse"> Collapse </button></span></caption></table>'
     collapse = $(t).click(function() { hideAll(table) })
     $('.table_container').append(collapse);
 
@@ -235,7 +245,7 @@ $(document).ready(function() {
         if (e.keyCode == 13)
             $('#searchbtn').click();
     });
-    $(this).scrollTop(0);
+    $("html,body").animate({ scrollTop: 0 }, 100);
 });
 
 
@@ -244,11 +254,15 @@ $(document).ready(function() {
 window.onscroll = function() { scrollFunction() };
 
 function scrollFunction() {
-    if (document.body.scrollTop > 25 || document.documentElement.scrollTop > 25) {
-        document.getElementById("panel").style.padding = "5px 5px 10px"; /* Top:5px, Right, Left: 5px, Bottom: 10px */
-        document.getElementById("our_title").style.fontSize = "22px";
+    if ($(window).scrollTop > 25 || document.documentElement.scrollTop > 25) {
+        // document.getElementById("panel").style.padding = "5px 5px 10px"; /* Top:5px, Right, Left: 5px, Bottom: 10px */
+        $('#panel').css("padding", "5px 5px 10px");
+        // document.getElementById("our_title").style.fontSize = "22px";
+        $("#our_title").css("fontSize", "22px");
     } else {
-        document.getElementById("panel").style.padding = "40px 5px";
-        document.getElementById("our_title").style.fontSize = "35px";
+        // document.getElementById("panel").style.padding = "40px 5px";
+        $('#panel').css("padding", "40px 5px");
+        // document.getElementById("our_title").style.fontSize = "35px";
+        $("#our_title").css("fontSize", "35px");
     }
 }
