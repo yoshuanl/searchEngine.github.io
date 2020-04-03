@@ -12,7 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-firestore.js"></script>
     <script src="main_script.js"></script>
-    
+
     <title>Database Search</title>
 </head>
 
@@ -22,14 +22,14 @@
 
         <div class="search_bar">
             <select class="db_selection" id="db">
-                <option>Select DB:</option>
+                <option disabled selected>Select DB:</option>
                 <option value="world">world</option>
                 <option value="employees">employees</option>
                 <option value="sakila">sakila</option>
             </select>
-                <input id="kw" placeholder="Search.."/>
-                <button id="searchbtn" onclick="input();"><i class="fa fa-search"></i></button>
-                <p>Read <var id="index_read">0</var> Inverted Index, Fetched <var id="data_fetched">0</var> Row of Data from Firebase</p>
+            <input id="kw" placeholder="Search.." />
+            <button id="searchbtn" onclick="input();"><i class="fa fa-search"></i></button>
+            <p>Read <var id="index_read">0</var> Inverted Index, Fetched <var id="data_fetched">0</var> Row of Data from Firebase</p>
 
         </div>
     </div>
