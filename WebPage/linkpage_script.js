@@ -63,25 +63,36 @@ function getURLParameter(sParam) {
 
 // main function
 async function getLinkResult() {
-    communication = 0
+    communication = { "link_index": 0, "retrieve": 0 };
+    result = {}
     $(".linkpage_table_container").html("");
     $(".linkpage_table_container").hide();
-    var db = getURLParameter("db");
-    var tables = getURLParameter("linkto");
+    db = getURLParameter("db");
+    var linked_tables = getURLParameter("linkto");
     var clicked_col = getURLParameter("clicked_col");
     var clicked_val = getURLParameter("clicked_val");
 
-    for (table_index in tables) {
-        table = tables[table_index]
-        createTable(table);
-
-        var s = database.ref('/' + db + '/link/' + table + '/' + clicked_col + '/' + clicked_val); // s is a list of dictionary
-        var x = s.once("value").then(function(node) {
-            jquery_createRow(db, table, node.val());
+    for (table_index in linked_tables) {
+        table = linked_tables[table_index]
+        
+        var s = database.ref('/' + db + '/link/' + table + '/' + clicked_col + '/' + clicked_val);
+        var y = s.once("value").then(function(node) {
+            // handle no data found in foreign key relationship table
+            if (node.val() == null){
+                var message1 = '<div>No Data Found in ' + table + ' table for ' + clicked_val + '</div>';
+                $(".linkpage_table_container").append(message1);
+                return
+            }
+            result[table] = node.val();
+            communication["link_index"] += result[table].length
+            createTable(table);
         })
-        await x;
-        document.getElementById("data_fetched").innerHTML = communication;
+        await y;
     }
+    var x = generateTable(lengthofsearch = null, target_table = null);
+    await x;
+    $("#data_fetched").text(communication["retrieve"]);
+    $("#index_read").text(communication["link_index"]);
     $(".linkpage_table_container").show();
 }
 
@@ -90,50 +101,68 @@ function createTable(table) {
     // create a table with table name
     var t = '<table id=' + table + ' border="1"><caption style="text-align:left">' + table.toString().toUpperCase() + '</caption></table>';
     $(".linkpage_table_container").append(t);
+    var header = '<tr>'
+    for (var i in col_ref[table]) {
+        // build column name (header) row
+        header += '<th>' + col_ref[table][i] + '</th>';
+    }
+    header += '</tr>'
+    // append it to html page
+    $('#' + table.toString()).append(header);
 }
 
 
+async function generateTable(lengthofsearch = null, target_table = null) {
+    for (var table in result) {
+        start = Math.max($('#' + table.toString() + ' tr').length - 1, 0)
+        if (target_table != null & table != target_table) {
+            continue
+        } else if (target_table != null) {
+            $('#' + target_table.toString() + ' tr:gt(' + start + ')').hide()
+        }
+        
+        if (lengthofsearch != null) {
+            communication["retrieve"] += lengthofsearch;
+            end = lengthofsearch
+        } else {
+            communication["retrieve"] += result[table].length - start;
+            end = result[table].length + 1;
+        }
+
+        for (var id in result[table].slice(start, end)) {
+            var primary_key = result[table][start + parseInt(id)];
+            // retreive data from firebase
+            var s = database.ref('/' + db + "/" + table + '/' + primary_key);
+            var x = s.once("value").then(function(node) {
+                jquery_createRow(db, table, node.val());
+            })
+        }
+        await x;
+    };
+}
+
+
+// this function build one data row
 function jquery_createRow(db, table, list) {
     if (list == null) {
         return;
     }
-    console.log("list", list)
-    if (list.length != 0) {
-        if ($("#" + table.toString()).children().length == 1) {
-            var header = '<tr>'
-            for (var i in col_ref[table]) {
-                // build column name (header) row
-                header += '<th>' + col_ref[table][i] + '</th>';
-            }
-            header += '</tr>'
-            // append it to html page
-            $('#' + table.toString()).append(header);
-
+    var tr = '<tr>'
+    for (var col_index in col_ref[table]) {
+        var cell_value = list[col_ref[table][col_index]]
+            // handle NULL case
+        if (cell_value == null | cell_value == "" | cell_value == "–") {
+            cell_value = "---"
         }
-        for (row_index = 0; row_index < list.length; row_index++){
-            var tr = '<tr>'
-            row_data = list[row_index]
-            for (var col_index in col_ref[table]) {
-                // build datarows for sorted search output
-                // if that column has foreign key relation, build link for it
-                col_name = col_ref[table][col_index]
-                var cell_value = row_data[col_name]
-                // handle NULL case
-                if (cell_value == null){
-                    cell_value = "---"
-                }
-                if (col_name in link_key[table]) {
-                    var tables = link_key[table][col_name].join("+")
-                    var newpage = 'linkpage.html?db=' + db + '&linkto=' + tables + '&clicked_col=' + col_name + '&clicked_val=' + cell_value
-                    tr += '<td>' + '<a href="' + newpage + '">' + cell_value  + '</a></td>';
-                } else {
-                    tr += '<td>' + cell_value + '</td>';
-                }
-                
-            }
-            tr += '</tr>';
-            communication += 1
-            $('#' + table.toString()).append(tr);
-        }
+        col_name = col_ref[table][col_index]
+        if (col_name in link_key[table]) {
+            var tables = link_key[table][col_name].join("+")
+            var newpage = 'linkpage.html?db=' + db + '&linkto=' + tables + '&clicked_col=' + col_name + '&clicked_val=' + cell_value
+            tr += '<td>' + '<a href="' + newpage + '">' + cell_value  + '</a></td>';
+        } else {
+            tr += '<td>' + cell_value + '</td>';
+        }     
     }
+    tr += '</tr>';
+    $('#' + table.toString()).append(tr);
 }
