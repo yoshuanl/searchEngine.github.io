@@ -123,10 +123,10 @@ function createHeader(table) {
 }
 
 
-function createTable(table, lengthoftable) {
+function createTable(table) {
     // create a table with table name
     var t = '<table id=' + table + ' border="1"><caption style="text-align:left">' + table.toString().toUpperCase();
-    if (lengthoftable <= 5) {
+    if (result[table].length <= 5) {
         t += '</caption></table>'
         $('.linkpage_table_container').append(t);
         createHeader(table)
@@ -159,7 +159,7 @@ async function generateTable(lengthofsearch = null, target_table = null) {
         }
         
         if (lengthofsearch != null) {
-            communication["retrieve"] += lengthofsearch;
+            communication["retrieve"] += Math.min(lengthofsearch, result[table].length);
             end = lengthofsearch
         } else {
             communication["retrieve"] += result[table].length - start;
