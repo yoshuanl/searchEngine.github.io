@@ -61,6 +61,21 @@ function getURLParameter(sParam) {
 }
 
 
+async function Expand(table) {
+    // console.log("expand", table)
+    var x = generateTable(lengthofsearch = null, target_table = table)
+    await x
+    $('#' + table.toString() + ' tr:gt(5)').show()
+    $("#data_fetched").text(communication["retrieve"]);
+}
+
+
+function hideAll(table) {
+    $('#' + table.toString() + ' tr:gt(5)').hide()
+}
+
+
+
 // main function
 async function getLinkResult() {
     communication = { "link_index": 0, "retrieve": 0 };
@@ -89,7 +104,7 @@ async function getLinkResult() {
         })
         await y;
     }
-    var x = generateTable(lengthofsearch = null, target_table = null);
+    var x = generateTable(lengthofsearch = 5, target_table = null);
     await x;
     $("#data_fetched").text(communication["retrieve"]);
     $("#index_read").text(communication["link_index"]);
@@ -97,18 +112,40 @@ async function getLinkResult() {
 }
 
 
-function createTable(table) {
-    // create a table with table name
-    var t = '<table id=' + table + ' border="1"><caption style="text-align:left">' + table.toString().toUpperCase() + '</caption></table>';
-    $(".linkpage_table_container").append(t);
+// build column name (header) row
+function createHeader(table) {
     var header = '<tr>'
     for (var i in col_ref[table]) {
-        // build column name (header) row
         header += '<th>' + col_ref[table][i] + '</th>';
     }
     header += '</tr>'
-    // append it to html page
     $('#' + table.toString()).append(header);
+}
+
+
+function createTable(table, lengthoftable) {
+    // create a table with table name
+    var t = '<table id=' + table + ' border="1"><caption style="text-align:left">' + table.toString().toUpperCase();
+    if (lengthoftable <= 5) {
+        t += '</caption></table>'
+        $('.linkpage_table_container').append(t);
+        createHeader(table)
+        return
+    }
+
+    t += '  <span class="right" style="text-align:right"><button class="collapse"> Collapse </button></span></caption></table>'
+    collapse = $(t).click(function() { hideAll(table) })
+    $('.linkpage_table_container').append(collapse);
+
+    var expand = '<span class="center"><button class="expand" > Expand </button></span>' //<hr />'
+    var collapse = '<span class="center"><button class="collapse" > Collapse </button></span>'
+
+    expand = $(expand).click(function() { Expand(table) })
+    collapse = $(collapse).click(function() { hideAll(table) })
+
+    $(".linkpage_table_container").append(expand);
+    $(".linkpage_table_container").append(collapse);
+    createHeader(table)
 }
 
 
