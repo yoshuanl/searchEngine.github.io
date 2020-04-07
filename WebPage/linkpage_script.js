@@ -99,21 +99,25 @@ async function getLinkResult() {
         var y = s.once("value").then(function(node) {
             // handle no data found in foreign key relationship table
             if (node.val() == null){
-                var message1 = '<div>No Data Found in ' + table + ' table for ' + clicked_val + '</div>';
-                $(".linkpage_table_container").append(message1);
                 return
             }
             result[table] = node.val();
             createTable(table);
             payload["index_size"] += memorySizeOf(node.val());
+            payload["index_size"] += memorySizeOf(route);
+            payload["index_read"] += result[table].length;
         })
         await y;
-        payload["index_read"] += result[table].length;
-        payload["index_size"] += memorySizeOf(route);
     }
-    var x = generateTable(lengthofsearch = 5, target_table = null);
-    await x;
     
+    if (Object.keys(result).length != 0) {
+        var x = generateTable(lengthofsearch = 5, target_table = null);
+        await x;
+    } else {
+        var message1 = '<div>No Data Found in Other Tables for ' + clicked_val + '</div>';
+        $(".linkpage_table_container").append(message1);
+    }
+
     $("#index_read").text(payload["index_read"]);
     $("#index_size").text("(" + formatByteSize(payload["index_size"]) + ")");
     $("#data_fetched").text(payload["rows_retrieved"]);

@@ -104,8 +104,10 @@ async function sortKeywords() {
         var s = database.ref(route);
         var xx =
             s.once("value").then(function(node) {
+                if (node.val() == null) {
+                    return
+                }
                 node.forEach(function(child) {
-
                     var table = child.child("TABLE").val()
                     var key = child.child("PK").val()
                     if (!(table in count)) {
@@ -120,9 +122,9 @@ async function sortKeywords() {
                     payload["index_read"] += 1;
                 })
                 payload["index_size"] += memorySizeOf(node.val());
+                payload["index_size"] += memorySizeOf(route);
             });
         await xx;
-        payload["index_size"] += memorySizeOf(route);
     }
 
     if (Object.keys(count).length == 0) {
@@ -286,8 +288,8 @@ function memorySizeOf(obj) {
     var bytes = 0;
 
     function sizeOf(obj) {
-        console.log("obj:", obj)
-        console.log("type:", typeof obj)
+        //console.log("obj:", obj)
+        //console.log("type:", typeof obj)
         if(obj !== null && obj !== undefined) {
             switch(typeof obj) {
             case 'number':
@@ -297,7 +299,7 @@ function memorySizeOf(obj) {
                 if (obj.search("/") >= 0) {
                     bytes += 16; // 16 additional bytes for the path to the document
                     var subobjs = obj.split("/"); // collection ID, document ID along the path
-                    console.log("subobjs", subobjs)
+                    //console.log("subobjs", subobjs)
                     for (name in subobjs) {
                         sizeOf(subobjs[name]);
                     }
@@ -319,7 +321,7 @@ function memorySizeOf(obj) {
                         sizeOf(obj[key]);
                     }
                 } else if (objClass === 'Array') {
-                    console.log("array!")
+                    //console.log("array!")
                     for (value in obj) {
                         sizeOf(obj[value]);
                     }
@@ -327,10 +329,10 @@ function memorySizeOf(obj) {
                 break;
             }
         } else {
-            console.log("null!")
+            //console.log("null!")
             bytes += 1; // 1 byte for NULL
         }
-        console.log("object: ", obj, " cum size: ", bytes)
+        //console.log("object: ", obj, " cum size: ", bytes)
         return bytes;
     };
     return sizeOf(obj);
