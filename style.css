@@ -1,0 +1,157 @@
+body {
+    margin: 0;
+    background-color: white;
+    text-align: center;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    color: #8B4513;
+}
+
+div {
+    font-size: 16px;
+}
+
+h1 {
+    font-size: 22px;
+}
+
+p {
+    font-size: 12px;
+}
+
+
+/* The search panel */
+
+#panel {
+    width: 100%;
+    /* Full width */
+    padding: 40px 5px;
+    /* Large padding which will shrink on scroll (using JS) */
+    background-color: white;
+    position: fixed;
+    /* Set the search bar to fixed position */
+    top: 0;
+    /* Position the search bar at the top of the page */
+    transition: 0.4s;
+    /* Adds a transition effect when the padding is decreased */
+    overflow: hidden;
+}
+
+#panel #our_title {
+    font-size: 35px;
+    font-weight: bold;
+    transition: 0.4s;
+}
+
+.db_selection {
+    width: 100px;
+    height: 21px;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}
+
+#kw {
+    border-radius: 5px;
+    padding: 2px 5px;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}
+
+#searchbtn {
+    width: 35px;
+    height: 22px;
+    border: 1px solid #FF7F50;
+    border-radius: 5px;
+    background: #FF7F50;
+    text-align: center;
+    color: #fff;
+    font-size: 12px;
+}
+
+#index_read,
+#data_fetched {
+    font-weight: bold;
+}
+
+#linkpage_banner {
+    width: 100%;
+    padding: 5px 5px 10px;
+    background-color: white;
+    position: fixed;
+    top: 0;
+}
+
+
+/* The outcome area, table */
+
+.table_container {
+    margin-top: 250px;
+    width: auto;
+    height: 1024px;
+    color: #696969;
+}
+
+.linkpage_table_container {
+    margin-top: 125px;
+    width: auto;
+    height: 1024px;
+    color: #696969;
+}
+
+table {
+    margin: 25px;
+    border-collapse: collapse;
+    width: 95%;
+}
+
+td,
+th {
+    border: 1px solid #ddd;
+    padding: 6px;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 100;
+}
+
+th {
+    padding-top: 12px;
+    background-color: #E9967A;
+    color: #F5EEEE;
+}
+
+tr:nth-child(even) {
+    background-color: #F5EEEE;
+}
+
+tr:hover {
+    background-color: #FFFAFA;
+}
+
+a:link {
+    color: #8B4513;
+}
+
+a:visited {
+    color: #b98f71;
+}
+
+a:hover {
+    color: #E9967A;
+}
+
+caption {
+    font-size: 22px;
+    color: #8B4513;
+}
+
+.expand,
+.collapse {
+    text-align: right;
+}
+
+.right {
+    float: right;
+}
+
+.center {
+    float: center;
+}
