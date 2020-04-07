@@ -48,16 +48,20 @@ $(init);
 async function input() {
     count = {};
     sort = {};
-    communication = { "sort": 0, "retrieve": 0 }; /* Project requirement: Communication overhead*/
+
+    /* Project requirement: Payload overhead*/
+    payload = { "index_read": 0, "rows_retrieved": 0, "index_size": 0, "data_size":0 }; 
 
     var x = sortKeywords()
     await x
-    $("#index_read").text(communication["sort"]);
-
+    $("#index_read").text(payload["index_read"]);
+    $("#index_size").text("(" + formatByteSize(payload["index_size"]) + ")");
+    
     var x = generateTable(lengthofsearch = 5, tables = null)
     await x
     $(".table_container").show();
-    $("#data_fetched").text(communication["retrieve"]);
+    $("#data_fetched").text(payload["rows_retrieved"]);
+    $("#data_size").text("(" + formatByteSize(payload["data_size"]) + ")");
 };
 
 
@@ -65,8 +69,9 @@ async function Expand(table) {
     // console.log("expand", table)
     var x = generateTable(lengthofsearch = null, tables = table)
     await x
-    $('#' + table.toString() + ' tr:gt(5)').show()
-    $("#data_fetched").text(communication["retrieve"]);
+    $('#' + table.toString() + ' tr:gt(5)').show();
+    $("#data_fetched").text(payload["rows_retrieved"]);
+    $("#data_size").text("(" + formatByteSize(payload["data_size"]) + ")");
 }
 
 
@@ -79,9 +84,8 @@ async function sortKeywords() {
     //console.log("2")
     $(".table_container").html("");
     $(".table_container").hide();
-
+    
     var db = $('#db option:selected').text()
-    console.log(db);
     if (db == "Select DB:") {
         var message1 = '<div>Please Select a Database.</div>';
         $(".table_container").append(message1);
@@ -96,11 +100,14 @@ async function sortKeywords() {
 
     // use inverted index to count occurance of keywords in each table
     for (i = 0; i < keywords.length; i++) {
-        var s = database.ref('/' + db + '/index/' + keywords[i]);
+        var route = db + '/index/' + keywords[i]
+        var s = database.ref(route);
         var xx =
             s.once("value").then(function(node) {
+                if (node.val() == null) {
+                    return
+                }
                 node.forEach(function(child) {
-
                     var table = child.child("TABLE").val()
                     var key = child.child("PK").val()
                     if (!(table in count)) {
@@ -112,8 +119,10 @@ async function sortKeywords() {
                     } else {
                         count[table][key.toString()] += 1;
                     }
-                    communication["sort"] += 1
+                    payload["index_read"] += 1;
                 })
+                payload["index_size"] += memorySizeOf(node.val());
+                payload["index_size"] += memorySizeOf(route);
             });
         await xx;
     }
@@ -150,19 +159,24 @@ async function generateTable(lengthofsearch = null, tables = null) {
         }
 
         if (lengthofsearch == null) {
-            lengthofsearch = sort[table].length + 1
+            //lengthofsearch = sort[table].length + 1
+            end = sort[table].length + 1
+        } else {
+            end = lengthofsearch
         }
 
-        for (var id in sort[table].slice(start, lengthofsearch)) {
+        for (var id in sort[table].slice(start, end)) {
             var primary_key = sort[table][start + parseInt(id)];
             // retreive data from firebase
-            var s = database.ref('/' + db + "/" + table + '/' + primary_key);
+            var route = db + "/" + table + '/' + primary_key;
+            var s = database.ref(route);
             var x = s.once("value").then(function(node) {
                 jquery_createRow(db, table, node.val());
+                payload["data_size"] += memorySizeOf(node.val());
             })
+            payload["data_size"] += memorySizeOf(route);
         }
         await x;
-        // document.getElementById("data_fetched").innerHTML = communication["retrieve"];
     };
 }
 
@@ -229,9 +243,9 @@ function jquery_createRow(db, table, list) {
             }
         }
         tr += '</tr>';
-        communication["retrieve"] += 1
         $('#' + table.toString()).append(tr);
 
+        payload["rows_retrieved"] += 1
     }
 
 }
@@ -266,3 +280,74 @@ function scrollFunction() {
         $("#our_title").css("fontSize", "35px");
     }
 }
+
+
+// Calculate size of an object, used in calculating communication overhead
+// written according to firebase document: https://firebase.google.com/docs/firestore/storage-size#document-size
+function memorySizeOf(obj) {
+    var bytes = 0;
+
+    function sizeOf(obj) {
+        //console.log("obj:", obj)
+        //console.log("type:", typeof obj)
+        if(obj !== null && obj !== undefined) {
+            switch(typeof obj) {
+            case 'number':
+                bytes += 8;
+                break;
+            case 'string':
+                if (obj.search("/") >= 0) {
+                    bytes += 16; // 16 additional bytes for the path to the document
+                    var subobjs = obj.split("/"); // collection ID, document ID along the path
+                    //console.log("subobjs", subobjs)
+                    for (name in subobjs) {
+                        sizeOf(subobjs[name]);
+                    }
+                } else bytes += obj.length + 1
+                break;
+            case 'boolean':
+                bytes += 1;
+                break;
+            case 'object':
+                var objClass = Object.prototype.toString.call(obj).slice(8, -1);
+                if(objClass === 'Object') {
+                    // 32 additional bytes for document
+                    bytes += 32;
+                    // field names
+                    sizeOf(Object.keys(obj));
+                    // values
+                    for(var key in obj) {
+                        if(!obj.hasOwnProperty(key)) continue;
+                        sizeOf(obj[key]);
+                    }
+                } else if (objClass === 'Array') {
+                    //console.log("array!")
+                    for (value in obj) {
+                        sizeOf(obj[value]);
+                    }
+                }
+                break;
+            }
+        } else {
+            //console.log("null!")
+            bytes += 1; // 1 byte for NULL
+        }
+        //console.log("object: ", obj, " cum size: ", bytes)
+        return bytes;
+    };
+    return sizeOf(obj);
+};
+
+
+//var test1 = 'users/jeff/tasks/my_task_id'
+//var test2 = {"type": "Personal", "done": {"E":90, "M":100}, "priority": 1, "description": "Learn Cloud Firestore"}
+//console.log("size:", memorySizeOf(test1))
+//console.log("size:", memorySizeOf(test2))
+
+
+function formatByteSize(bytes) {
+    if(bytes < 1024) return bytes + " bytes";
+    else if(bytes < 1048576) return(bytes / 1024).toFixed(2) + " KB";
+    else if(bytes < 1073741824) return(bytes / 1048576).toFixed(2) + " MB";
+    else return(bytes / 1073741824).toFixed(2) + " GB";
+};

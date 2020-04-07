@@ -58,6 +58,12 @@ link_cols = {"world":
              "actor": ["actor_id"],
              "film_actor": ["film_id", "actor_id"]}}
 
+# primary keys that are artificially created by us
+arti_pk = {"world": set(["CountryLanguage"]),
+           "employees": set(["EmpDate", "EmpDept"]),
+           "sakila": set(["FilmActor"])}
+
+
 # columns that represent ID and don't need number formatting
 avoid_nb_format = {"world": set(["ID", "Capital", "IndepYear"]),
                    "employees": set(["emp_no", "EmpDept"]),
@@ -82,6 +88,9 @@ class SQLData():
             return str("{:,}".format(value))
         
         if type(value) == datetime.datetime:
+            return str(value)
+        
+        if type(value) == datetime.date:
             return str(value)
         
         return value
@@ -134,7 +143,7 @@ class SQLData():
             if table_name == "titles":
                 for row in mycursor.fetchall():
                     modi_row = list(map(self.formatting, row))
-                    pk = modi_row[0] + modi_row[2]
+                    pk = str(modi_row[0]) + modi_row[2]
                     modi_row.append(pk)
                     data.append(modi_row)
                 col_name.append("EmpDate")
@@ -142,7 +151,7 @@ class SQLData():
             elif table_name == "dept_emp":
                 for row in mycursor.fetchall():
                     modi_row = list(map(self.formatting, row))
-                    pk = modi_row[0] + modi_row[1]
+                    pk = str(modi_row[0]) + modi_row[1]
                     modi_row.append(pk)
                     data.append(modi_row)
                 col_name.append("EmpDept")
@@ -209,6 +218,7 @@ class FirebasePreparation():
         # for search tree, takes unique pk as node (need to combine two col if there is no pk)
         rows = collections.defaultdict(dict)
         # for link tree, which takes pk/fk as node, row(s) with that pk/fk as a list of children
+        # store only the unique pk of that row
         rows_forlink = collections.defaultdict(dict)
         
         key_cols = self.getKey(table, "link")
@@ -223,15 +233,19 @@ class FirebasePreparation():
             row = dict()
             for col, column_name in zip(line, header):
                 row[column_name] = self.formatting(col, column_name)
+            
+            pk_name = self.getKey(table, "search")
+            primary_key = row[pk_name]
+            rows[primary_key] = row 
+            
+            if pk_name in arti_pk[self.db_name]:
+                rows[primary_key].pop(pk_name)
                 
             # build tree for linkage step
             for key_col in key_cols:
-                key = row[key_col]
-                rows_forlink[key_col][key].append(row)
-                
-            key = row[self.getKey(table, "search")]
-            rows[key] = row
-                
+                key_with_link = row[key_col]
+                rows_forlink[key_col][key_with_link].append(primary_key)
+            
         self._search_tree[table] = rows
         self._link_tree[table] = rows_forlink
     

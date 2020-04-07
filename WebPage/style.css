@@ -68,7 +68,9 @@ p {
 }
 
 #index_read,
-#data_fetched {
+#index_size,
+#data_fetched,
+#data_size {
     font-weight: bold;
 }
 
