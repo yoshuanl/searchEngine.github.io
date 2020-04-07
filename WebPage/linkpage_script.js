@@ -66,7 +66,8 @@ async function Expand(table) {
     var x = generateTable(lengthofsearch = null, target_table = table)
     await x
     $('#' + table.toString() + ' tr:gt(5)').show()
-    $("#data_fetched").text(communication["retrieve"]);
+    $("#data_fetched").text(payload["rows_retrieved"]);
+    $("#data_size").text("(" + formatByteSize(payload["data_size"]) + ")");
 }
 
 
@@ -75,22 +76,26 @@ function hideAll(table) {
 }
 
 
-
 // main function
 async function getLinkResult() {
-    communication = { "link_index": 0, "retrieve": 0 };
     result = {}
+
+    /* Project requirement: Payload overhead*/
+    payload = { "index_read": 0, "rows_retrieved": 0, "index_size": 0, "data_size":0 }; 
+    
     $(".linkpage_table_container").html("");
     $(".linkpage_table_container").hide();
+
     db = getURLParameter("db");
+
     var linked_tables = getURLParameter("linkto");
     var clicked_col = getURLParameter("clicked_col");
     var clicked_val = getURLParameter("clicked_val");
 
     for (table_index in linked_tables) {
         table = linked_tables[table_index]
-        
-        var s = database.ref('/' + db + '/link/' + table + '/' + clicked_col + '/' + clicked_val);
+        var route = db + '/link/' + table + '/' + clicked_col + '/' + clicked_val;
+        var s = database.ref(route);
         var y = s.once("value").then(function(node) {
             // handle no data found in foreign key relationship table
             if (node.val() == null){
@@ -99,15 +104,21 @@ async function getLinkResult() {
                 return
             }
             result[table] = node.val();
-            communication["link_index"] += result[table].length
             createTable(table);
+            payload["index_size"] += memorySizeOf(node.val());
         })
         await y;
+        payload["index_read"] += result[table].length;
+        payload["index_size"] += memorySizeOf(route);
     }
     var x = generateTable(lengthofsearch = 5, target_table = null);
     await x;
-    $("#data_fetched").text(communication["retrieve"]);
-    $("#index_read").text(communication["link_index"]);
+    
+    $("#index_read").text(payload["index_read"]);
+    $("#index_size").text("(" + formatByteSize(payload["index_size"]) + ")");
+    $("#data_fetched").text(payload["rows_retrieved"]);
+    $("#data_size").text("(" + formatByteSize(payload["data_size"]) + ")");
+
     $(".linkpage_table_container").show();
 }
 
@@ -159,20 +170,23 @@ async function generateTable(lengthofsearch = null, target_table = null) {
         }
         
         if (lengthofsearch != null) {
-            communication["retrieve"] += Math.min(lengthofsearch, result[table].length);
+            payload["rows_retrieved"] += Math.min(lengthofsearch, result[table].length);
             end = lengthofsearch
         } else {
-            communication["retrieve"] += result[table].length - start;
+            payload["rows_retrieved"] += result[table].length - start;
             end = result[table].length + 1;
         }
 
         for (var id in result[table].slice(start, end)) {
             var primary_key = result[table][start + parseInt(id)];
             // retreive data from firebase
-            var s = database.ref('/' + db + "/" + table + '/' + primary_key);
+            var route = db + "/" + table + '/' + primary_key;
+            var s = database.ref(route);
             var x = s.once("value").then(function(node) {
                 jquery_createRow(db, table, node.val());
+                payload["data_size"] += memorySizeOf(node.val());
             })
+            payload["data_size"] += memorySizeOf(route);
         }
         await x;
     };
@@ -203,3 +217,74 @@ function jquery_createRow(db, table, list) {
     tr += '</tr>';
     $('#' + table.toString()).append(tr);
 }
+
+
+// Calculate size of an object, used in calculating communication overhead
+// written according to firebase document: https://firebase.google.com/docs/firestore/storage-size#document-size
+function memorySizeOf(obj) {
+    var bytes = 0;
+
+    function sizeOf(obj) {
+        console.log("obj:", obj)
+        console.log("type:", typeof obj)
+        if(obj !== null && obj !== undefined) {
+            switch(typeof obj) {
+            case 'number':
+                bytes += 8;
+                break;
+            case 'string':
+                if (obj.search("/") >= 0) {
+                    bytes += 16; // 16 additional bytes for the path to the document
+                    var subobjs = obj.split("/"); // collection ID, document ID along the path
+                    console.log("subobjs", subobjs)
+                    for (name in subobjs) {
+                        sizeOf(subobjs[name]);
+                    }
+                } else bytes += obj.length + 1
+                break;
+            case 'boolean':
+                bytes += 1;
+                break;
+            case 'object':
+                var objClass = Object.prototype.toString.call(obj).slice(8, -1);
+                if(objClass === 'Object') {
+                    // 32 additional bytes for document
+                    bytes += 32;
+                    // field names
+                    sizeOf(Object.keys(obj));
+                    // values
+                    for(var key in obj) {
+                        if(!obj.hasOwnProperty(key)) continue;
+                        sizeOf(obj[key]);
+                    }
+                } else if (objClass === 'Array') {
+                    console.log("array!")
+                    for (value in obj) {
+                        sizeOf(obj[value]);
+                    }
+                }
+                break;
+            }
+        } else {
+            console.log("null!")
+            bytes += 1; // 1 byte for NULL
+        }
+        console.log("object: ", obj, " cum size: ", bytes)
+        return bytes;
+    };
+    return sizeOf(obj);
+};
+
+
+//var test1 = 'users/jeff/tasks/my_task_id'
+//var test2 = {"type": "Personal", "done": {"E":90, "M":100}, "priority": 1, "description": "Learn Cloud Firestore"}
+//console.log("size:", memorySizeOf(test1))
+//console.log("size:", memorySizeOf(test2))
+
+
+function formatByteSize(bytes) {
+    if(bytes < 1024) return bytes + " bytes";
+    else if(bytes < 1048576) return(bytes / 1024).toFixed(2) + " KB";
+    else if(bytes < 1073741824) return(bytes / 1048576).toFixed(2) + " MB";
+    else return(bytes / 1073741824).toFixed(2) + " GB";
+};

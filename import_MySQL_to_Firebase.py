@@ -58,6 +58,12 @@ link_cols = {"world":
              "actor": ["actor_id"],
              "film_actor": ["film_id", "actor_id"]}}
 
+# primary keys that are artificially created by us
+arti_pk = {"world": set(["CountryLanguage"]),
+           "employees": set(["EmpDate", "EmpDept"]),
+           "sakila": set(["FilmActor"])}
+
+
 # columns that represent ID and don't need number formatting
 avoid_nb_format = {"world": set(["ID", "Capital", "IndepYear"]),
                    "employees": set(["emp_no", "EmpDept"]),
@@ -227,9 +233,13 @@ class FirebasePreparation():
             row = dict()
             for col, column_name in zip(line, header):
                 row[column_name] = self.formatting(col, column_name)
-                
-            primary_key = row[self.getKey(table, "search")]
-            rows[primary_key] = row   
+            
+            pk_name = self.getKey(table, "search")
+            primary_key = row[pk_name]
+            rows[primary_key] = row 
+            
+            if pk_name in arti_pk[self.db_name]:
+                rows[primary_key].pop(pk_name)
                 
             # build tree for linkage step
             for key_col in key_cols:
