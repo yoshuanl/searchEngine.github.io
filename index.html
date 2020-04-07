@@ -1,1 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-firestore.js"></script>
+    <script src="main_script.js"></script>
+
+    <title>Database Search</title>
+</head>
+
+<body>
+    <div id="panel">
+        <h1 id="our_title">MySQL Database in Firebase</h1>
+
+        <div class="search_bar">
+            <select class="db_selection" id="db">
+                <option disabled selected>Select DB:</option>
+                <option value="world">world</option>
+                <option value="employees">employees</option>
+                <option value="sakila">sakila</option>
+            </select>
+            <input id="kw" placeholder="Search.." />
+            <button id="searchbtn" onclick="input();"><i class="fa fa-search"></i></button>
+            <p>Read <var id="index_read">0</var> Inverted Index, Fetched <var id="data_fetched">0</var> Row of Data from Firebase</p>
+
+        </div>
+    </div>
+
+    <div class="table_container">
+        <div>Welcome to Che-Pai and Yo-Shuan's INF551 Project!</div>
+    </div>
+</body>
+
+</html>
