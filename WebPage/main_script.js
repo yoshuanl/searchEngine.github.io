@@ -48,15 +48,17 @@ $(init);
 async function input() {
     count = {};
     sort = {};
+    count_column = {}
+    temp = {}
 
     /* Project requirement: Payload overhead*/
-    payload = { "index_read": 0, "rows_retrieved": 0, "index_size": 0, "data_size":0 }; 
+    payload = { "index_read": 0, "rows_retrieved": 0, "index_size": 0, "data_size": 0 };
 
     var x = sortKeywords()
     await x
     $("#index_read").text(payload["index_read"]);
     $("#index_size").text("(" + formatByteSize(payload["index_size"]) + ")");
-    
+
     var x = generateTable(lengthofsearch = 5, tables = null)
     await x
     $(".table_container").show();
@@ -84,7 +86,7 @@ async function sortKeywords() {
     //console.log("2")
     $(".table_container").html("");
     $(".table_container").hide();
-    
+
     var db = $('#db option:selected').text()
     if (db == "Select DB:") {
         var message1 = '<div>Please Select a Database.</div>';
@@ -100,8 +102,10 @@ async function sortKeywords() {
 
     // use inverted index to count occurance of keywords in each table
     for (i = 0; i < keywords.length; i++) {
+        // console.log(keywords[i])
         var route = db + '/index/' + keywords[i]
         var s = database.ref(route);
+
         var xx =
             s.once("value").then(function(node) {
                 if (node.val() == null) {
@@ -112,14 +116,43 @@ async function sortKeywords() {
                     var key = child.child("PK").val()
                     if (!(table in count)) {
                         count[table] = {};
+                        count_column[table] = {};
+                        temp[table] = {}
                     };
 
                     if (!(key in count[table])) {
                         count[table][key.toString()] = 1;
+                        count_column[table][key.toString()] = {}
+                        count_column[table][key.toString()]["WC"] = 0
+                        count_column[table][key.toString()]["CC"] = 0
+                        count_column[table][key.toString()]["TC"] = 1
+                        count_column[table][key.toString()]["TT"] = {}
+
+                        temp[table][key.toString()] = {}
+                        temp[table][key.toString()]["W"] = new Set()
                     } else {
                         count[table][key.toString()] += 1;
+                        count_column[table][key.toString()]["TC"] += 1;
                     }
                     payload["index_read"] += 1;
+
+                    var column_name = child.child("COLUMN").val()
+                    if (!(column_name in count_column[table][key.toString()]["TT"])) {
+                        count_column[table][key.toString()]["CC"] += 1
+                        count_column[table][key.toString()]["CC"][column_name] = 0
+                        count_column[table][key.toString()]["TT"][column_name] = 0
+                        temp[table][key.toString()][column_name] = new Set()
+                    }
+                    if (!(keywords[i] in temp[table][key.toString()][column_name])) {
+                        count_column[table][key.toString()]["TT"][column_name] += 1
+                        temp[table][key.toString()][column_name].add(keywords[i])
+                    }
+
+                    if (!temp[table][key.toString()]["W"].has(keywords[i])) {
+                        count_column[table][key.toString()]["WC"] += 1
+                        temp[table][key.toString()]["W"].add(keywords[i])
+
+                    }
                 })
                 payload["index_size"] += memorySizeOf(node.val());
                 payload["index_size"] += memorySizeOf(route);
@@ -136,8 +169,20 @@ async function sortKeywords() {
     // sort count result
     for (var i in count) {
         // console.log("i in count", i)
+
+        tt = Object.keys(count_column[i]).sort(function(a, b) {
+            if (count_column[i][a]["WC"] == keywords.length || count_column[i][a]["WC"] == keywords.length) {
+                ma = Math.max(...Object.values(count_column[i][a]['TT']))
+                mb = Math.max(...Object.values(count_column[i][b]['TT']))
+                return -count_column[i][a]["WC"] + count_column[i][b]["WC"] || -ma + mb || -count_column[i][a]["TC"] + count_column[i][b]["TC"];
+            }
+            return -count_column[i][a]["WC"] + count_column[i][b]["WC"] || -count_column[i][a]["TC"] + count_column[i][b]["TC"];
+        });
+        // for (var j in tt) {
+        //     console.log(count_column[i][tt[j]], Math.max(...Object.values(count_column[i][tt[j]]['TT'])));
+        // }
         keysSorted = Object.keys(count[i]).sort(function(a, b) { return -count[i][a] + count[i][b] });
-        sort[i] = keysSorted;
+        sort[i] = tt;
         createTable(i, keysSorted.length);
     }
 
@@ -190,7 +235,7 @@ function createTable(table, lengthoftable) {
         $('.table_container').append(t);
         return
     }
-    t += '  <span class="right" style="text-align:right"><button class="collapse"> Collapse </button></span></caption></table>'
+    t += '  <span class="right" style="text-align:right"><button class="collapse" onclick = "hideAll(\'' + table + '\')"> Collapse </button></span></caption></table>'
     collapse = $(t).click(function() { hideAll(table) })
     $('.table_container').append(collapse);
 
@@ -290,43 +335,43 @@ function memorySizeOf(obj) {
     function sizeOf(obj) {
         //console.log("obj:", obj)
         //console.log("type:", typeof obj)
-        if(obj !== null && obj !== undefined) {
-            switch(typeof obj) {
-            case 'number':
-                bytes += 8;
-                break;
-            case 'string':
-                if (obj.search("/") >= 0) {
-                    bytes += 16; // 16 additional bytes for the path to the document
-                    var subobjs = obj.split("/"); // collection ID, document ID along the path
-                    //console.log("subobjs", subobjs)
-                    for (name in subobjs) {
-                        sizeOf(subobjs[name]);
+        if (obj !== null && obj !== undefined) {
+            switch (typeof obj) {
+                case 'number':
+                    bytes += 8;
+                    break;
+                case 'string':
+                    if (obj.search("/") >= 0) {
+                        bytes += 16; // 16 additional bytes for the path to the document
+                        var subobjs = obj.split("/"); // collection ID, document ID along the path
+                        //console.log("subobjs", subobjs)
+                        for (name in subobjs) {
+                            sizeOf(subobjs[name]);
+                        }
+                    } else bytes += obj.length + 1
+                    break;
+                case 'boolean':
+                    bytes += 1;
+                    break;
+                case 'object':
+                    var objClass = Object.prototype.toString.call(obj).slice(8, -1);
+                    if (objClass === 'Object') {
+                        // 32 additional bytes for document
+                        bytes += 32;
+                        // field names
+                        sizeOf(Object.keys(obj));
+                        // values
+                        for (var key in obj) {
+                            if (!obj.hasOwnProperty(key)) continue;
+                            sizeOf(obj[key]);
+                        }
+                    } else if (objClass === 'Array') {
+                        //console.log("array!")
+                        for (value in obj) {
+                            sizeOf(obj[value]);
+                        }
                     }
-                } else bytes += obj.length + 1
-                break;
-            case 'boolean':
-                bytes += 1;
-                break;
-            case 'object':
-                var objClass = Object.prototype.toString.call(obj).slice(8, -1);
-                if(objClass === 'Object') {
-                    // 32 additional bytes for document
-                    bytes += 32;
-                    // field names
-                    sizeOf(Object.keys(obj));
-                    // values
-                    for(var key in obj) {
-                        if(!obj.hasOwnProperty(key)) continue;
-                        sizeOf(obj[key]);
-                    }
-                } else if (objClass === 'Array') {
-                    //console.log("array!")
-                    for (value in obj) {
-                        sizeOf(obj[value]);
-                    }
-                }
-                break;
+                    break;
             }
         } else {
             //console.log("null!")
@@ -346,8 +391,8 @@ function memorySizeOf(obj) {
 
 
 function formatByteSize(bytes) {
-    if(bytes < 1024) return bytes + " bytes";
-    else if(bytes < 1048576) return(bytes / 1024).toFixed(2) + " KB";
-    else if(bytes < 1073741824) return(bytes / 1048576).toFixed(2) + " MB";
-    else return(bytes / 1073741824).toFixed(2) + " GB";
+    if (bytes < 1024) return bytes + " bytes";
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + " KB";
+    else if (bytes < 1073741824) return (bytes / 1048576).toFixed(2) + " MB";
+    else return (bytes / 1073741824).toFixed(2) + " GB";
 };
