@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-firestore.js"></script>
+    <script src="linkpage_script.js"></script>
+
+    <title>Database Navigation</title>
+</head>
+
+<body>
+    <div id="linkpage_banner">
+        <h1>MySQL Database in Firebase</h1>
+        <p>Read <var id="index_read">0</var> Linkage Index <var id="index_size"></var>, Fetched <var id="data_fetched">0</var> Row of Data <var id="data_size"></var> from Firebase</p>
+    </div>
+    <div class="linkpage_table_container"></div>
+
+</body>
+
+</html>
