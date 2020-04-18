@@ -164,7 +164,7 @@ class SQLData():
             if table_name == "film_actor":
                 for row in mycursor.fetchall():
                     modi_row = list(map(self.formatting, row))
-                    pk = modi_row[0] + modi_row[1]
+                    pk = str(modi_row[0]) + str(modi_row[1])
                     modi_row.append(pk)
                     data.append(modi_row)
                 col_name.append("FilmActor")
@@ -206,7 +206,7 @@ class FirebasePreparation():
             return None
         
         if col_name in avoid_nb_format[self.db_name]:
-            return value
+            return str(value)
         
         if type(value) in [int, float]:
             return str("{:,}".format(value))
@@ -275,7 +275,9 @@ class FirebasePreparation():
     def __uploadToFirebase(self):
         print("UPLOADING DATA ...")
         requests.patch(self.url + ".json", data = json.dumps(self._search_tree))
-        requests.patch(self.url + "/link.json", data = json.dumps(self._link_tree))
+        #requests.patch(self.url + "/link.json", data = json.dumps(self._link_tree))
+        for table in self._link_tree.keys():
+            requests.patch(self.url + "/{}.json".format(table), data = json.dumps(self._link_tree[table]))
         
         print("UPLOADING INVERTED INDEX ...")
         requests.patch(self.url + "/index.json", data = json.dumps(self._index))

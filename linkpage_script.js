@@ -94,7 +94,7 @@ async function getLinkResult() {
 
     for (table_index in linked_tables) {
         table = linked_tables[table_index]
-        var route = db + '/link/' + table + '/' + clicked_col + '/' + clicked_val;
+        var route = db + '/' + table + '/' + clicked_col + '/' + clicked_val;
         var s = database.ref(route);
         var y = s.once("value").then(function(node) {
             // handle no data found in foreign key relationship table
