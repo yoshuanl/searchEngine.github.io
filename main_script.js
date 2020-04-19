@@ -34,6 +34,11 @@ var link_key = {
 
 
 function init() {
+    // disable scrolling
+    $('html, body').css({
+        overflow: 'hidden',
+        height: '100%'
+    });
     firebase.initializeApp({
         databaseURL: "https://sql-searchdb.firebaseio.com/",
         projectId: "sql-searchdb"
@@ -46,6 +51,11 @@ $(init);
 
 
 async function input() {
+    // enable scrolling
+    $('html, body').css({
+        overflow: 'auto',
+        height: 'auto'
+    });
     count = {};
     sort = {};
     count_column = {}
