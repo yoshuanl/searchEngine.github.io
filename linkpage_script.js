@@ -129,7 +129,7 @@ async function getLinkResult() {
     $("#index_size").text("(" + formatByteSize(payload["index_size"]) + ")");
     $("#data_fetched").text(payload["rows_retrieved"]);
     $("#data_size").text("(" + formatByteSize(payload["data_size"]) + ")");
-
+    $("p").show();
     $(".linkpage_table_container").show();
 }
 

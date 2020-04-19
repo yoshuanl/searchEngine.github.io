@@ -64,6 +64,7 @@ async function input() {
     $(".table_container").show();
     $("#data_fetched").text(payload["rows_retrieved"]);
     $("#data_size").text("(" + formatByteSize(payload["data_size"]) + ")");
+    $("p").show();
 };
 
 
