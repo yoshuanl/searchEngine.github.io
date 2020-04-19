@@ -79,6 +79,13 @@ async function Expand(table) {
 
 function hideAll(table) {
     $('#' + table.toString() + ' tr:gt(5)').hide()
+    // scroll to top after hiding current table
+    var x = $('#' + table.toString()).position();
+    window.scroll({
+        top: x.top - 110, 
+        left: x.left, 
+        behavior: 'auto'
+    });
 }
 
 
