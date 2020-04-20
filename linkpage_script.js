@@ -62,7 +62,7 @@ function getURLParameter(sParam) {
 
 
 async function Expand(table) {
-    // console.log("expand", table)
+    console.log("expand", table)
     var x = generateTable(lengthofsearch = null, target_table = table)
     await x
     $('#' + table.toString() + ' tr:gt(5)').show()
@@ -72,6 +72,7 @@ async function Expand(table) {
 
 
 function hideAll(table) {
+    console.log("hide", table)
     $('#' + table.toString() + ' tr:gt(5)').hide()
     // scroll to top after hiding current table
     var x = $('#' + table.toString()).position();
@@ -130,6 +131,7 @@ async function getLinkResult() {
     $("#data_fetched").text(payload["rows_retrieved"]);
     $("#data_size").text("(" + formatByteSize(payload["data_size"]) + ")");
     $("p").show();
+    $(".loader").hide();
     $(".linkpage_table_container").show();
 }
 
@@ -236,8 +238,8 @@ function memorySizeOf(obj) {
     var bytes = 0;
 
     function sizeOf(obj) {
-        console.log("obj:", obj)
-        console.log("type:", typeof obj)
+        //console.log("obj:", obj)
+        //console.log("type:", typeof obj)
         if(obj !== null && obj !== undefined) {
             switch(typeof obj) {
             case 'number':
@@ -247,7 +249,7 @@ function memorySizeOf(obj) {
                 if (obj.search("/") >= 0) {
                     bytes += 16; // 16 additional bytes for the path to the document
                     var subobjs = obj.split("/"); // collection ID, document ID along the path
-                    console.log("subobjs", subobjs)
+                    //console.log("subobjs", subobjs)
                     for (name in subobjs) {
                         sizeOf(subobjs[name]);
                     }
@@ -269,7 +271,7 @@ function memorySizeOf(obj) {
                         sizeOf(obj[key]);
                     }
                 } else if (objClass === 'Array') {
-                    console.log("array!")
+                    //console.log("array!")
                     for (value in obj) {
                         sizeOf(obj[value]);
                     }
@@ -280,7 +282,7 @@ function memorySizeOf(obj) {
             console.log("null!")
             bytes += 1; // 1 byte for NULL
         }
-        console.log("object: ", obj, " cum size: ", bytes)
+        //console.log("object: ", obj, " cum size: ", bytes)
         return bytes;
     };
     return sizeOf(obj);
