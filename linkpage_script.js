@@ -148,19 +148,18 @@ function createHeader(table) {
 
 function createTable(table) {
     // create a table with table name
-    var t = '<table id=' + table + ' border="1"><caption style="text-align:left">' + table.toString().toUpperCase();
+    var t = '<table id=' + table + ' border="1"><caption style="text-align:left">' + table.toString().toUpperCase() + '</caption></table>';
     if (result[table].length <= 5) {
-        t += '</caption></table>'
         $('.linkpage_table_container').append(t);
         createHeader(table)
         return
     }
 
-    t += '<span class="right" style="text-align:right"><button class="collapse"> Collapse </button></span></caption></table>'
+    //t += '<span class="right" style="text-align:right"><button class="collapse"> Collapse </button></span></caption></table>'
     collapse = $(t).click(function() { hideAll(table) })
     $('.linkpage_table_container').append(collapse);
 
-    var expand = '<span class="center"><button class="expand" > Expand </button></span>' //<hr />'
+    var expand = '<span class="center"><button class="expand" > Expand </button></span>'
     var collapse = '<span class="center"><button class="collapse" > Collapse </button></span>'
 
     expand = $(expand).click(function() { Expand(table) })
@@ -286,12 +285,6 @@ function memorySizeOf(obj) {
     };
     return sizeOf(obj);
 };
-
-
-//var test1 = 'users/jeff/tasks/my_task_id'
-//var test2 = {"type": "Personal", "done": {"E":90, "M":100}, "priority": 1, "description": "Learn Cloud Firestore"}
-//console.log("size:", memorySizeOf(test1))
-//console.log("size:", memorySizeOf(test2))
 
 
 function formatByteSize(bytes) {

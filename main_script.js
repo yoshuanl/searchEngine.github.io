@@ -246,14 +246,13 @@ async function generateTable(lengthofsearch = null, tables = null) {
 
 function createTable(table, lengthoftable) {
     // create a table with table name and expand/collapse buttons
-    var t = '<table id=' + table + ' border="1" align="center"><caption style="text-align:left">' + table.toString().toUpperCase();
+    var t = '<table id=' + table + ' border="1" align="center"><caption style="text-align:left">' + table.toString().toUpperCase() + '</caption></table>';
 
     if (lengthoftable <= 5) {
-        t += '</caption></table>'
         $('.table_container').append(t);
         return
     }
-    t += '  <span class="right" style="text-align:right"><button class="collapse" onclick = "hideAll(\'' + table + '\')"> Collapse </button></span></caption></table>'
+    //t += '  <span class="right" style="text-align:right"><button class="collapse" onclick = "hideAll(\'' + table + '\')"> Collapse </button></span></caption></table>'
     collapse = $(t).click(function() { hideAll(table) })
     $('.table_container').append(collapse);
 
