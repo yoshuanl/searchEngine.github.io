@@ -72,12 +72,11 @@ async function Expand(table) {
 
 
 function hideAll(table) {
-    console.log("hide", table)
-    $('#' + table.toString() + ' tr:gt(5)').hide()
+    $('#' + table.toString() + ' tr:gt(5)').hide();
     // scroll to top after hiding current table
     var x = $('#' + table.toString()).position();
     window.scroll({
-        top: x.top - 75, 
+        top: x.top - 100, 
         left: x.left, 
         behavior: 'auto'
     });
@@ -157,7 +156,7 @@ function createTable(table) {
         return
     }
 
-    t += '  <span class="right" style="text-align:right"><button class="collapse"> Collapse </button></span></caption></table>'
+    t += '<span class="right" style="text-align:right"><button class="collapse"> Collapse </button></span></caption></table>'
     collapse = $(t).click(function() { hideAll(table) })
     $('.linkpage_table_container').append(collapse);
 
@@ -222,7 +221,7 @@ function jquery_createRow(db, table, list) {
         if (col_name in link_key[table]) {
             var tables = link_key[table][col_name].join("+")
             var newpage = 'linkpage.html?db=' + db + '&linkto=' + tables + '&clicked_col=' + col_name + '&clicked_val=' + cell_value
-            tr += '<td>' + '<a href="' + newpage + '">' + cell_value  + '</a></td>';
+            tr += '<td>' + '<a onclick="if (event.stopPropagation) {event.stopPropagation;} event.cancelBubble = true; return true;"href="' + newpage + '">' + cell_value  + '</a></td>';
         } else {
             tr += '<td>' + cell_value + '</td>';
         }     

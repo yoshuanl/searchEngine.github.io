@@ -300,7 +300,7 @@ function jquery_createRow(db, table, list) {
             if (col_name in link_key[table]) {
                 var tables = link_key[table][col_name].join("+")
                 var newpage = 'linkpage.html?db=' + db + '&linkto=' + tables + '&clicked_col=' + col_name + '&clicked_val=' + cell_value
-                tr += '<td>' + '<a href="' + newpage + '" target="_blank">' + cell_value + '</a></td>';
+                tr += '<td>' + '<a onclick="if (event.stopPropagation) {event.stopPropagation;} event.cancelBubble = true; return true;"href="' + newpage + '" target="_blank">' + cell_value + '</a></td>';
             } else {
                 tr += '<td>' + cell_value + '</td>';
             }
