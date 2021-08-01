@@ -50,11 +50,9 @@ function init() {
         measurementId: "G-BCC85PW01M"
     });
     database = firebase.database();
-
 }
 
 $(init);
-
 
 async function input() {
     // enable scrolling
@@ -83,9 +81,7 @@ async function input() {
     $("p").show();
 };
 
-
 async function Expand(table) {
-    // console.log("expand", table)
     var x = generateTable(lengthofsearch = null, tables = table)
     await x
     $('#' + table.toString() + ' tr:gt(5)').show();
@@ -93,21 +89,18 @@ async function Expand(table) {
     $("#data_size").text("(" + formatByteSize(payload["data_size"]) + ")");
 }
 
-
 function hideAll(table) {
     $('#' + table.toString() + ' tr:gt(5)').hide()
     // scroll to top after hiding current table
     var x = $('#' + table.toString()).position();
     window.scroll({
-        top: x.top - 110, 
-        left: x.left, 
+        top: x.top - 110,
+        left: x.left,
         behavior: 'auto'
     });
 }
 
-
 async function sortKeywords() {
-    //console.log("2")
     $(".table_container").html("");
     $(".table_container").hide();
 
@@ -126,16 +119,15 @@ async function sortKeywords() {
 
     // use inverted index to count occurance of keywords in each table
     for (i = 0; i < keywords.length; i++) {
-        // console.log(keywords[i])
         var route = db + '/index/' + keywords[i]
         var s = database.ref(route);
 
         var xx =
-            s.once("value").then(function(node) {
+            s.once("value").then(function (node) {
                 if (node.val() == null) {
                     return
                 }
-                node.forEach(function(child) {
+                node.forEach(function (child) {
                     var table = child.child("TABLE").val()
                     var key = child.child("PK").val()
                     if (!(table in count)) {
@@ -171,11 +163,9 @@ async function sortKeywords() {
                         count_column[table][key.toString()]["TT"][column_name] += 1
                         temp[table][key.toString()][column_name].add(keywords[i])
                     }
-
                     if (!temp[table][key.toString()]["W"].has(keywords[i])) {
                         count_column[table][key.toString()]["WC"] += 1
                         temp[table][key.toString()]["W"].add(keywords[i])
-
                     }
                 })
                 payload["index_size"] += memorySizeOf(node.val());
@@ -192,9 +182,7 @@ async function sortKeywords() {
 
     // sort count result
     for (var i in count) {
-        // console.log("i in count", i)
-
-        tt = Object.keys(count_column[i]).sort(function(a, b) {
+        tt = Object.keys(count_column[i]).sort(function (a, b) {
             if (count_column[i][a]["WC"] == keywords.length || count_column[i][a]["WC"] == keywords.length) {
                 ma = Math.max(...Object.values(count_column[i][a]['TT']))
                 mb = Math.max(...Object.values(count_column[i][b]['TT']))
@@ -202,22 +190,13 @@ async function sortKeywords() {
             }
             return -count_column[i][a]["WC"] + count_column[i][b]["WC"] || -count_column[i][a]["TC"] + count_column[i][b]["TC"];
         });
-        // for (var j in tt) {
-        //     console.log(count_column[i][tt[j]], Math.max(...Object.values(count_column[i][tt[j]]['TT'])));
-        // }
-        keysSorted = Object.keys(count[i]).sort(function(a, b) { return -count[i][a] + count[i][b] });
+        keysSorted = Object.keys(count[i]).sort(function (a, b) { return -count[i][a] + count[i][b] });
         sort[i] = tt;
         createTable(i, keysSorted.length);
     }
-
 }
 
-
 async function generateTable(lengthofsearch = null, tables = null) {
-    // console.log("table", tables)
-    // console.log("3")
-    // console.log("sort", sort)
-    // console.log("count", count)
     db = $('#db option:selected').text()
     for (var table in count) {
         start = Math.max($('#' + table.toString() + ' tr').length - 1, 0)
@@ -228,7 +207,6 @@ async function generateTable(lengthofsearch = null, tables = null) {
         }
 
         if (lengthofsearch == null) {
-            //lengthofsearch = sort[table].length + 1
             end = sort[table].length + 1
         } else {
             end = lengthofsearch
@@ -239,7 +217,7 @@ async function generateTable(lengthofsearch = null, tables = null) {
             // retreive data from firebase
             var route = db + "/" + table + '/' + primary_key;
             var s = database.ref(route);
-            var x = s.once("value").then(function(node) {
+            var x = s.once("value").then(function (node) {
                 jquery_createRow(db, table, node.val());
                 payload["data_size"] += memorySizeOf(node.val());
             })
@@ -249,7 +227,6 @@ async function generateTable(lengthofsearch = null, tables = null) {
     };
 }
 
-
 function createTable(table, lengthoftable) {
     // create a table with table name and expand/collapse buttons
     var t = '<table id=' + table + ' border="1" align="center"><caption style="text-align:left">' + table.toString().toUpperCase() + '</caption></table>';
@@ -258,24 +235,21 @@ function createTable(table, lengthoftable) {
         $('.table_container').append(t);
         return
     }
-    //t += '  <span class="right" style="text-align:right"><button class="collapse" onclick = "hideAll(\'' + table + '\')"> Collapse </button></span></caption></table>'
-    collapse = $(t).click(function() { hideAll(table) })
+    collapse = $(t).click(function () { hideAll(table) })
     $('.table_container').append(collapse);
 
     var expand = '<span class="center"><button class="expand" > Expand </button></span>' //<hr />'
     var collapse = '<span class="center"><button class="collapse" > Collapse </button></span>'
 
-    expand = $(expand).click(function() { Expand(table) })
-    collapse = $(collapse).click(function() { hideAll(table) })
+    expand = $(expand).click(function () { Expand(table) })
+    collapse = $(collapse).click(function () { hideAll(table) })
 
     $(".table_container").append(expand);
     $(".table_container").append(collapse);
 }
 
-
 function jquery_createRow(db, table, list) {
     if (list == null) {
-        // console.log("list is null")
         return;
     }
     if (list.length != 0) {
@@ -286,22 +260,19 @@ function jquery_createRow(db, table, list) {
                 header += '<th>' + col[table][i] + '</th>';
             }
             header += '</tr>'
-                // append it to html page
+            // append it to html page
             $('#' + table.toString()).append(header);
         }
         // build data rows for sorted search output
-        var tr = '<tr>'
-            // var rowCount = $('#' + table.toString() + ' tr').length;
-            // console.log("4", rowCount);
+        var tr = '<tr>';
         for (var col_index in col[table]) {
-
             var cell_value = list[col[table][col_index]]
-                // handle NULL case
+            // handle NULL case
             if (cell_value == null | cell_value == "" | cell_value == "–") {
                 cell_value = "---"
             }
             col_name = col[table][col_index]
-                // if that column has foreign key relation, build link for it
+            // if that column has foreign key relation, build link for it
             if (col_name in link_key[table]) {
                 var tables = link_key[table][col_name].join("+")
                 var newpage = 'linkpage.html?db=' + db + '&linkto=' + tables + '&clicked_col=' + col_name + '&clicked_val=' + cell_value
@@ -315,15 +286,14 @@ function jquery_createRow(db, table, list) {
 
         payload["rows_retrieved"] += 1
     }
-
 }
 
 
 /* Other additional functions */
 
 // Allow user to press enter to fire search
-$(document).ready(function() {
-    $('#kw').keypress(function(e) {
+$(document).ready(function () {
+    $('#kw').keypress(function (e) {
         if (e.keyCode == 13)
             $('#searchbtn').click();
     });
@@ -331,26 +301,20 @@ $(document).ready(function() {
 });
 
 
-// CSS
 // When the user scrolls down 25px from the top of the document, resize the panel's padding and the title's font size
-window.onscroll = function() { scrollFunction() };
+window.onscroll = function () { scrollFunction() };
 
 function scrollFunction() {
     if ($(window).scrollTop > 25 || document.documentElement.scrollTop > 25) {
-        // document.getElementById("panel").style.padding = "5px 5px 10px"; /* Top:5px, Right, Left: 5px, Bottom: 10px */
         $('#panel').css("padding", "5px 5px 10px");
         $('#panel').css("background-color", "rgba(255, 235, 205, 1)");
-        // document.getElementById("our_title").style.fontSize = "22px";
         $("#our_title").css("fontSize", "22px");
     } else {
-        // document.getElementById("panel").style.padding = "40px 5px";
         $('#panel').css("padding", "30px 5px");
         $('#panel').css("background-color", "rgba(255, 235, 205, 0.5)");
-        // document.getElementById("our_title").style.fontSize = "35px";
         $("#our_title").css("fontSize", "35px");
     }
 }
-
 
 // Calculate size of an object, used in calculating communication overhead
 // written according to firebase document: https://firebase.google.com/docs/firestore/storage-size#document-size
@@ -358,8 +322,6 @@ function memorySizeOf(obj) {
     var bytes = 0;
 
     function sizeOf(obj) {
-        //console.log("obj:", obj)
-        //console.log("type:", typeof obj)
         if (obj !== null && obj !== undefined) {
             switch (typeof obj) {
                 case 'number':
@@ -369,7 +331,6 @@ function memorySizeOf(obj) {
                     if (obj.search("/") >= 0) {
                         bytes += 16; // 16 additional bytes for the path to the document
                         var subobjs = obj.split("/"); // collection ID, document ID along the path
-                        //console.log("subobjs", subobjs)
                         for (name in subobjs) {
                             sizeOf(subobjs[name]);
                         }
@@ -391,7 +352,6 @@ function memorySizeOf(obj) {
                             sizeOf(obj[key]);
                         }
                     } else if (objClass === 'Array') {
-                        //console.log("array!")
                         for (value in obj) {
                             sizeOf(obj[value]);
                         }
@@ -399,21 +359,12 @@ function memorySizeOf(obj) {
                     break;
             }
         } else {
-            //console.log("null!")
             bytes += 1; // 1 byte for NULL
         }
-        //console.log("object: ", obj, " cum size: ", bytes)
         return bytes;
     };
     return sizeOf(obj);
 };
-
-
-//var test1 = 'users/jeff/tasks/my_task_id'
-//var test2 = {"type": "Personal", "done": {"E":90, "M":100}, "priority": 1, "description": "Learn Cloud Firestore"}
-//console.log("size:", memorySizeOf(test1))
-//console.log("size:", memorySizeOf(test2))
-
 
 function formatByteSize(bytes) {
     if (bytes < 1024) return bytes + " bytes";
