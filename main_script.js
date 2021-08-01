@@ -40,8 +40,14 @@ function init() {
         height: '100%'
     });
     firebase.initializeApp({
+        apiKey: "AIzaSyCs4uCUbe2-KVE4LLKkfjWHABkKG2yhuVs",
+        authDomain: "sql-searchdb.firebaseapp.com",
         databaseURL: "https://sql-searchdb.firebaseio.com/",
-        projectId: "sql-searchdb"
+        projectId: "sql-searchdb",
+        storageBucket: "sql-searchdb.appspot.com",
+        messagingSenderId: "263201107735",
+        appId: "1:263201107735:web:01fc24fccca97ad3da5152",
+        measurementId: "G-BCC85PW01M"
     });
     database = firebase.database();
 
@@ -333,11 +339,13 @@ function scrollFunction() {
     if ($(window).scrollTop > 25 || document.documentElement.scrollTop > 25) {
         // document.getElementById("panel").style.padding = "5px 5px 10px"; /* Top:5px, Right, Left: 5px, Bottom: 10px */
         $('#panel').css("padding", "5px 5px 10px");
+        $('#panel').css("background-color", "rgba(255, 235, 205, 1)");
         // document.getElementById("our_title").style.fontSize = "22px";
         $("#our_title").css("fontSize", "22px");
     } else {
         // document.getElementById("panel").style.padding = "40px 5px";
-        $('#panel').css("padding", "40px 5px");
+        $('#panel').css("padding", "30px 5px");
+        $('#panel').css("background-color", "rgba(255, 235, 205, 0.5)");
         // document.getElementById("our_title").style.fontSize = "35px";
         $("#our_title").css("fontSize", "35px");
     }
