@@ -307,11 +307,9 @@ window.onscroll = function () { scrollFunction() };
 function scrollFunction() {
     if ($(window).scrollTop > 25 || document.documentElement.scrollTop > 25) {
         $('#panel').css("padding", "5px 5px 10px");
-        $('#panel').css("background-color", "rgba(255, 235, 205, 1)");
         $("#our_title").css("fontSize", "22px");
     } else {
         $('#panel').css("padding", "30px 5px");
-        $('#panel').css("background-color", "rgba(255, 235, 205, 0.5)");
         $("#our_title").css("fontSize", "35px");
     }
 }
